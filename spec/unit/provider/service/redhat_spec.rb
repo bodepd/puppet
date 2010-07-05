@@ -10,6 +10,7 @@ provider_class = Puppet::Type.type(:service).provider(:redhat)
 describe provider_class do
 
     before :each do
+        @class = Puppet::Type.type(:service).provider(:redhat)
         @resource = stub 'resource'
         @resource.stubs(:[]).returns(nil)
         @resource.stubs(:[]).with(:name).returns "myservice"
@@ -18,6 +19,24 @@ describe provider_class do
         @provider.resource = @resource
         FileTest.stubs(:file?).with('/sbin/service').returns true
         FileTest.stubs(:executable?).with('/sbin/service').returns true
+    end
+    
+    # test self.instances
+    describe "when getting all service instances" do
+        before :each do 
+            @services = ['one', 'two', 'three', 'four', 'kudzu', 'functions', 'halt', 'killall', 'single', 'linuxconf']
+            @not_services = ['functions', 'halt', 'killall', 'single', 'linuxconf']
+            Dir.stubs(:entries).returns @services
+            FileTest.stubs(:directory?).returns(true)
+            FileTest.stubs(:executable?).returns(true)
+        end
+        it "should return instances for all services" do
+            (@services-@not_services).each do |inst|
+                @class.expects(:new).with({:name => inst, :path => @class.defpath}).returns("#{inst}_instance")
+            end
+            results = (@services-@not_services).collect {|x| "#{x}_instance"}
+            @class.instances.should == results
+        end
     end
 
     it "should have an enabled? method" do
