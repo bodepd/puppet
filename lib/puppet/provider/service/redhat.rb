@@ -63,7 +63,7 @@ Puppet::Type.type(:service).provide :redhat, :parent => :init, :source => :init 
 
     # use hasstatus=>true when its set for the provider.
     def statuscmd
-        ((@resource.provider.get(:hasstatus)) || (@resource[:hasstatus] == :true)) && [command(:service), @resource[:name], "status"]
+        ((@resource.provider.get(:hasstatus) == true) || (@resource[:hasstatus] == :true)) && [command(:service), @resource[:name], "status"]
     end
 
     def restartcmd
