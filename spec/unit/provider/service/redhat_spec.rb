@@ -14,9 +14,10 @@ describe provider_class do
         @resource = stub 'resource'
         @resource.stubs(:[]).returns(nil)
         @resource.stubs(:[]).with(:name).returns "myservice"
-
         @provider = provider_class.new
+        @resource.stubs(:provider).returns @provider
         @provider.resource = @resource
+        @provider.stubs(:get).with(:hasstatus).returns false
         FileTest.stubs(:file?).with('/sbin/service').returns true
         FileTest.stubs(:executable?).with('/sbin/service').returns true
     end
