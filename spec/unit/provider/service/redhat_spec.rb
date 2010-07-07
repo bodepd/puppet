@@ -2,7 +2,6 @@
 #
 # Unit testing for the RedHat service Provider
 #
-require 'ruby-debug' 
 require File.dirname(__FILE__) + '/../../../spec_helper'
 
 provider_class = Puppet::Type.type(:service).provider(:redhat)
@@ -30,7 +29,6 @@ describe provider_class do
             Dir.stubs(:entries).returns @services
             FileTest.stubs(:directory?).returns(true)
             FileTest.stubs(:executable?).returns(true)
-Debugger.start
         end
         it "should return instances for all services" do
             (@services-@not_services).each do |inst|
