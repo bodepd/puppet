@@ -2,7 +2,7 @@
 #
 # Unit testing for the RedHat service Provider
 #
-
+require 'ruby-debug' 
 require File.dirname(__FILE__) + '/../../../spec_helper'
 
 provider_class = Puppet::Type.type(:service).provider(:redhat)
@@ -30,13 +30,24 @@ describe provider_class do
             Dir.stubs(:entries).returns @services
             FileTest.stubs(:directory?).returns(true)
             FileTest.stubs(:executable?).returns(true)
+Debugger.start
         end
         it "should return instances for all services" do
             (@services-@not_services).each do |inst|
-                @class.expects(:new).with({:name => inst, :path => @class.defpath}).returns("#{inst}_instance")
+                @class.expects(:new).with{|hash| hash[:name] == inst && hash[:path] == '/etc/init.d'}.returns("#{inst}_instance")
             end
             results = (@services-@not_services).collect {|x| "#{x}_instance"}
             @class.instances.should == results
+        end
+        it "should use status command for self.instances" do
+                @resource.stubs(:[]).with(:status).returns nil
+                @provider.expects(:execute).with { |command, *args| command == ["/user/specified/command"] }
+                #@provider.send(:status)
+          #@resource.stubs(:[]).with(:status).returns false
+          #@provider.expects(:execute).with { |command, *args| command ==  ['/sbin/service', 'myservice', method.to_s]}
+           @class.instances.each do |inst|
+             inst.send(:status)
+           end 
         end
     end
 
