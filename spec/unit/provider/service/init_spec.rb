@@ -33,7 +33,7 @@ describe provider_class do
         end
         it "should return instances for all services" do
             @services.each do |inst|
-                @class.expects(:new).with({:name => inst, :path => @class.defpath}).returns("#{inst}_instance")
+                @class.expects(:new).with{|hash| hash[:name] == inst && hash[:path] == @class.defpath}.returns("#{inst}_instance")
             end
             results = @services.collect {|x| "#{x}_instance"}
             @class.instances.should == results
@@ -41,7 +41,7 @@ describe provider_class do
         it "should omit an array of services from exclude list" do
             exclude = ['two', 'four']
             (@services-exclude).each do |inst|
-                @class.expects(:new).with({:name => inst, :path => @class.defpath}).returns("#{inst}_instance")
+                @class.expects(:new).with{|hash| hash[:name] == inst && hash[:path] == @class.defpath}.returns("#{inst}_instance")
             end
             results = (@services-exclude).collect {|x| "#{x}_instance"}
             @class.get_services(@class.defpath, exclude).should == results
@@ -49,7 +49,7 @@ describe provider_class do
         it "should omit a single service from the exclude list" do
             exclude = 'two'
             (@services-exclude.to_a).each do |inst|
-                @class.expects(:new).with({:name => inst, :path => @class.defpath}).returns("#{inst}_instance")
+                @class.expects(:new).with{|hash| hash[:name] == inst && hash[:path] == @class.defpath}.returns("#{inst}_instance")
             end
             results = @services.reject{|x| x==exclude }.collect {|x| "#{x}_instance"}
             @class.get_services(@class.defpath, exclude).should == results
