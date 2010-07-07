@@ -37,15 +37,11 @@ describe provider_class do
             results = (@services-@not_services).collect {|x| "#{x}_instance"}
             @class.instances.should == results
         end
-        it "should use status command for self.instances" do
-                @resource.stubs(:[]).with(:status).returns nil
-                @provider.expects(:execute).with { |command, *args| command == ["/user/specified/command"] }
-                #@provider.send(:status)
-          #@resource.stubs(:[]).with(:status).returns false
-          #@provider.expects(:execute).with { |command, *args| command ==  ['/sbin/service', 'myservice', method.to_s]}
-           @class.instances.each do |inst|
-             inst.send(:status)
-           end 
+        it "should call service status when initialized from provider" do
+            @resource.stubs(:[]).with(:status).returns nil
+            @provider.stubs(:get).with(:hasstatus).returns true
+            @provider.expects(:execute).with{|command, *args| command == ['/sbin/service', 'myservice', 'status']}
+            @provider.send(:status)
         end
     end
 
