@@ -38,7 +38,7 @@ describe provider do
     it "should be able to set version" do
       @resource.stubs(:should).with(:ensure).returns "1.2"
       @provider.expects(:yum).with('-d', '0', '-e', '0', '-y', :install, 'mypackage-1.2')
-      @provider.stubs(:query).returns :ensure => '1.2' #Hash.new({:ensure => '1.2'})
+      @provider.stubs(:query).returns :ensure => '1.2' 
       @provider.install
     end
   end
@@ -57,15 +57,5 @@ describe provider do
   it "should be versionable" do
     provider.should be_versionable
   end
-
-
-
-#  describe "when installing" do
-#    it "should specify the package version if one is asked for" do
-#    @resource.expects(:name).with(:ensure).returns "1.0"
-#    @resource.expects(:name)
-#    @provider.expects(:yum).with("-d", "0", "-e", "0", "-y", :install, "mypackage-1.0")
-#    @provider.install
-#    end
 end
 
