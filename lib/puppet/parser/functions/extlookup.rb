@@ -95,10 +95,14 @@ This is for back compatibility to interpolate variables with %. % interpolation 
   extlookup_precedence = Array.new
 
   extlookup_precedence = lookupvar('extlookup_precedence').collect do |var|
-    var.gsub(/%\{(.+?)\}/) do |capture|
-      lookupvar($1)
-    end
+    var.split('%').collect do |var|
+      var.gsub(/^\{(\S*)\}/) do |capture|
+        puts lookupvar($1)
+        lookupvar($1)
+      end
+     end.join('')
   end
+  Puppet.debug(extlookup_precedence.inspect)
 
   datafiles = Array.new
 

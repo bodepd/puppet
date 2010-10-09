@@ -208,6 +208,13 @@ class Puppet::Resource::Type
   # Set any arguments passed by the resource as variables in the scope.
   def set_resource_parameters(resource, scope)
     set = {}
+    # get the module data path
+    # assumes manifests only exists once (bad assumption)
+    if file and file.split('manifests').size == 2 and ! set.include? :module_data_dir
+      data_dir = "#{file.split('manifests')[0]}data"
+      scope.setvar("module_data_dir", data_dir)
+    end
+    scope.setvar("module_name", module_name) if module_name and ! set.include? :module_name
     resource.to_hash.each do |param, value|
       param = param.to_sym
       fail Puppet::ParseError, "#{resource.ref} does not accept attribute #{param}" unless valid_parameter?(param)
@@ -240,7 +247,6 @@ class Puppet::Resource::Type
       scope.setvar("title", resource.title              ) unless set.include? :title
       scope.setvar("name",  resource.name               ) unless set.include? :name
     end
-    scope.setvar("module_name", module_name) if module_name and ! set.include? :module_name
 
     if caller_name = scope.parent_module_name and ! set.include?(:caller_module_name)
       scope.setvar("caller_module_name", caller_name)
