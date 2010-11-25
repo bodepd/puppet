@@ -129,6 +129,17 @@ class Puppet::Parser::Compiler
 
   # Evaluate all of the classes specified by the node.
   def evaluate_node_classes
+    if @node.classes.class == Hash
+      @node.classes.each do |name, params|
+        params ||= {}
+        # I have to find the hostclass
+        if klass = topscope.find_hostclass(name)
+          #resource = Puppet::Resource::Type.new(:hostclass, name)
+          klass.ensure_in_catalog(topscope, params)
+        end
+      end
+      @node.classes = @node.classes.keys
+    end
     evaluate_classes(@node.classes, topscope)
   end
 
@@ -432,7 +443,11 @@ class Puppet::Parser::Compiler
     @resources = []
 
     # Make sure any external node classes are in our class list
-    @catalog.add_class(*@node.classes)
+    if @node.classes.class == Hash
+      @catalog.add_class(*@node.classes.keys)
+    else
+      @catalog.add_class(*@node.classes)
+    end
   end
 
   # Set the node's parameters into the top-scope as variables.

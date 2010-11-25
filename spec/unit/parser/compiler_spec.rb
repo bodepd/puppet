@@ -109,6 +109,16 @@ describe Puppet::Parser::Compiler do
       compiler.classlist.should include("bar")
     end
 
+    it "should transform node class hashes into a class list" do
+      node = Puppet::Node.new("mynode")
+      @node.classes = {'foo'=>{'one'=>'1'}, 'bar'=>{'two'=>'2'}}
+      node.classes = {'foo'=>{'one'=>'1'}, 'bar'=>{'two'=>'2'}}
+      compiler = Puppet::Parser::Compiler.new(node)
+
+      compiler.classlist.should include("foo")
+      compiler.classlist.should include("bar")
+    end
+
     it "should add a 'main' stage to the catalog" do
       @compiler.catalog.resource(:stage, :main).should be_instance_of(Puppet::Parser::Resource)
     end
@@ -175,6 +185,18 @@ describe Puppet::Parser::Compiler do
 
     it "should evaluate any existing classes named in the node" do
       classes = %w{one two three four}
+      main = stub 'main'
+      one = stub 'one', :name => "one"
+      three = stub 'three', :name => "three"
+      @node.stubs(:name).returns("whatever")
+      @node.stubs(:classes).returns(classes)
+
+      @compiler.expects(:evaluate_classes).with(classes, @compiler.topscope)
+      @compiler.class.publicize_methods(:evaluate_node_classes) { @compiler.evaluate_node_classes }
+    end
+
+    it "should evaluate any parameterized classes named in the node" do
+      classes = {'foo'=>{'one'=>'1'}, 'bar'=>{'two'=>'2'}}
       main = stub 'main'
       one = stub 'one', :name => "one"
       three = stub 'three', :name => "three"
