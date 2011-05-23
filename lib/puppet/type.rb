@@ -893,8 +893,7 @@ class Type
           next
         end
         provider_instances[instance.name] = instance
-
-        new(:name => instance.name, :provider => instance, :audit => :all)
+        new(:title => namevar_join(instance.property_hash), :provider => instance, :audit => :all)
       end
     end.flatten.compact
   end
