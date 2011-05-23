@@ -219,6 +219,14 @@ class Type
     end
   end
 
+  def self.namevar_join(hash)
+    case key_attributes.length
+    when 0,1; hash[:name]
+    else
+      Puppet.warning('you should specify a joiner when there are two of more key attributes')
+    end
+  end
+
   def uniqueness_key
     self.class.key_attributes.sort_by { |attribute_name| attribute_name.to_s }.map{ |attribute_name| self[attribute_name] }
   end
