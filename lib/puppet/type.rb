@@ -916,8 +916,11 @@ class Type
 
     title = hash.delete(:title)
     title ||= hash[:name]
-    title ||= hash[key_attributes.first] if key_attributes.length == 1
-
+    title ||= if key_attributes.length == 1
+      hash[key_attributes.first] 
+    else
+      namevar_join(hash)
+    end
     raise Puppet::Error, "Title or name must be provided" unless title
 
     # Now create our resource.
