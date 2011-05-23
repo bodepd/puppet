@@ -40,32 +40,36 @@ module Puppet
       Currently only tcp and udp are supported and recognised when setting
       the protocol via the title."
 
-    def self.title_patterns
-      [
-        # we have two title_patterns "name" and "name:protocol". We won't use
-        # one pattern (that will eventually set :protocol to nil) because we
-        # want to use a default value for :protocol. And that does only work
-        # when :protocol is not put in the parameter hash while initialising
-        [
-          /^(.*)\/(tcp|udp)$/, # Set name and protocol
-          [
-            # We don't need a lot of post-parsing
-            [ :name, lambda{|x| x} ],
-            [ :protocol, lambda{ |x| x.intern } ]
-          ]
-        ],
-        [
-          /^(.*)$/,
-          [
-            [ :name, lambda{|x| x} ]
-          ]
-        ]
-      ]
-    end
+   def self.namevar_join(hash)
+     "#{hash[:path]}/#{hash[:protocol]}"
+   end
+
+   def self.title_patterns
+     [
+       # we have two title_patterns "name" and "name:protocol". We won't use
+       # one pattern (that will eventually set :protocol to nil) because we
+       # want to use a default value for :protocol. And that does only work
+       # when :protocol is not put in the parameter hash while initialising
+       [
+         /^(.*)\/(tcp|udp)$/, # Set name and protocol
+         [
+           # We don't need a lot of post-parsing
+           [ :path, lambda{|x| x} ],
+           [ :protocol, lambda{ |x| x.intern } ]
+         ]
+       ],
+       [
+         /^(.*)$/,
+         [
+           [ :path, lambda{|x| x} ]
+         ]
+       ]
+     ]
+   end
 
     ensurable
 
-    newparam(:name) do
+    newparam(:path) do
       desc "The port name."
 
       validate do |value|
@@ -85,7 +89,7 @@ module Puppet
 
       newvalues :tcp, :udp
 
-      defaultto :tcp
+      #defaultto :tcp
 
       isnamevar
     end
@@ -138,7 +142,7 @@ module Puppet
     end
 
     validate do
-      unless @parameters[:name] and @parameters[:protocol]
+      unless @parameters[:path] and @parameters[:protocol]
         raise Puppet::Error, "Attributes 'name' and 'protocol' are mandatory"
       end
     end

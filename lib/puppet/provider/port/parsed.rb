@@ -14,7 +14,7 @@ Puppet::Type.type(:port).provide(:parsed, :parent => Puppet::Provider::ParsedFil
   text_line :comment, :match => /^\s*#/
   text_line :blank, :match => /^\s*$/
 
-  record_line :parsed, :fields => %w{name number protocol port_aliases description},
+  record_line :parsed, :fields => %w{path number protocol port_aliases description},
     :optional   => %w{port_aliases description},
     :match      => /^(\S*)\s+(\d*)\/(\S*)\s*(.*?)?\s*(?:#\s*(.*))?$/,
     :post_parse => proc { |hash|
@@ -25,11 +25,11 @@ Puppet::Type.type(:port).provide(:parsed, :parent => Puppet::Provider::ParsedFil
       end
     },
     :to_line => proc { |hash|
-      [:name, :number, :protocol].each do |n|
+      [:path, :number, :protocol].each do |n|
         raise Puppet::Error, "#{n} is a required attribute for port but not included in #{hash.inspect}" unless hash[n] and hash[n] != :absent
       end
 
-      str = "#{hash[:name]}\t#{hash[:number]}/#{hash[:protocol]}"
+      str = "#{hash[:path]}\t#{hash[:number]}/#{hash[:protocol]}"
       if hash.include? :port_aliases and !hash[:port_aliases].nil? and hash[:port_aliases] != :absent
         str += "\t#{hash[:port_aliases]}"
       end
@@ -45,7 +45,7 @@ Puppet::Type.type(:port).provide(:parsed, :parent => Puppet::Provider::ParsedFil
   # just have to calculate the uniqueness_key of that record.
   def self.match(record,resources)
     # We now calculate the uniqueness_key of the resource we want to find
-    uniq_key = [record[:name], record[:protocol]]
+    uniq_key = [record[:path], record[:protocol]]
     resources[uniq_key] # will be nil if the user doesnt manage record
   end
 
