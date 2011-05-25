@@ -67,9 +67,10 @@ class Puppet::Resource::Type
     scope = static_parent || resource.scope
 
     scope = scope.newscope(:namespace => namespace, :source => self, :resource => resource, :dynamic => !static_parent) unless resource.title == :main
-    scope.compiler.add_class(name) unless definition?
 
     set_resource_parameters(resource, scope)
+
+    scope.compiler.add_class({name=>resource.to_hash}) unless definition?
 
     code.safeevaluate(scope) if code
 

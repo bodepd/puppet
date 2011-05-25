@@ -47,13 +47,12 @@ class Puppet::Resource::Catalog < Puppet::SimpleGraph
   attr_accessor :client_version, :server_version
 
   # Add classes to our class list.
-  def add_class(*classes)
-    classes.each do |klass|
-      @classes << klass
-    end
+  def add_class(classes)
+    # I should probably test for conflicts
+    @classes.merge!(classes)
 
     # Add the class names as tags, too.
-    tag(*classes)
+    tag(classes.keys) unless classes.empty?
   end
 
   def title_key_for_ref( ref )
@@ -268,7 +267,7 @@ class Puppet::Resource::Catalog < Puppet::SimpleGraph
   def initialize(name = nil)
     super()
     @name = name if name
-    @classes = []
+    @classes = {}
     @resource_table = {}
     @transient_resources = []
     @applying = false
@@ -472,7 +471,7 @@ class Puppet::Resource::Catalog < Puppet::SimpleGraph
     end
 
     if classes = data['classes']
-      result.add_class(*classes)
+      result.add_class(classes)
     end
 
     result
@@ -542,7 +541,8 @@ class Puppet::Resource::Catalog < Puppet::SimpleGraph
   # Store the classes in the classfile.
   def write_class_file
       ::File.open(Puppet[:classfile], "w") do |f|
-        f.puts classes.join("\n")
+        # maybe this should write to json
+        f.puts classes.to_yaml
       end
   rescue => detail
       Puppet.err "Could not create class file #{Puppet[:classfile]}: #{detail}"
@@ -642,7 +642,7 @@ class Puppet::Resource::Catalog < Puppet::SimpleGraph
 
     map.clear
 
-    result.add_class(*self.classes)
+    result.add_class(self.classes)
     result.tag(*self.tags)
 
     result

@@ -81,8 +81,8 @@ class Puppet::Parser::Compiler
   end
 
   # Store the fact that we've evaluated a class
-  def add_class(name)
-    @catalog.add_class(name) unless name == ""
+  def add_class(klass)
+    @catalog.add_class(klass) unless klass.empty? || klass[''] == {}
   end
 
 
@@ -440,9 +440,11 @@ class Puppet::Parser::Compiler
 
     # Make sure any external node classes are in our class list
     if @node.classes.class == Hash
-      @catalog.add_class(*@node.classes.keys)
+      @catalog.add_class(@node.classes)
     else
-      @catalog.add_class(*@node.classes)
+      @catalog.add_class(
+        @node.classes.reduce({}) { |h, elm| h.merge({elm=>{}}) }
+      )
     end
   end
 

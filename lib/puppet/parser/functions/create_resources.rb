@@ -41,7 +41,7 @@ Takes two parameters:
       klass = find_hostclass(title)
       raise ArgumentError, "could not find hostclass #{title}" unless klass
       klass.ensure_in_catalog(self, params)
-      compiler.catalog.add_class([title])
+      compiler.catalog.add_class({title=>params})
     end
   end
 end
