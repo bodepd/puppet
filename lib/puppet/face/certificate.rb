@@ -50,7 +50,6 @@ Puppet::Indirector::Face.define(:certificate, '0.0.1') do
     when_invoked do |name, options|
       host = Puppet::SSL::Host.new(name)
       host.generate_certificate_request
-      host.certificate_request.class.indirection.save(host.certificate_request)
     end
   end
 
