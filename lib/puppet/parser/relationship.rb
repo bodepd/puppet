@@ -55,6 +55,7 @@ class Puppet::Parser::Relationship
     end
     Puppet.debug "Adding relationship from #{source} to #{target} with '#{param_name}'"
     source_resource[param_name] ||= []
+    source_resource[param_name] = Array(source_resource[param_name])
     source_resource[param_name] << target
   end
 end
